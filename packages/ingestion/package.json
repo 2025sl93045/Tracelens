@@ -1,0 +1,24 @@
+{
+  "name": "@tracelens/ingestion",
+  "version": "0.1.0",
+  "description": "Telemetry ingestion API: validates and persists incoming TelemetryEvents.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@tracelens/shared": "*",
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/pg": "^8.11.10"
+  }
+}

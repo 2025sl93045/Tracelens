@@ -1,0 +1,37 @@
+name: Task
+description: A development task (use this to track planned work)
+labels: ['task']
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Task description
+      description: What needs to be done?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] ...
+        - [ ] Tests added
+        - [ ] Docs updated
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / owner module
+      options:
+        - shared
+        - demo-services
+        - ingestion
+        - correlation
+        - graph
+        - api
+        - frontend
+        - ci/build
+        - docs
+    validations:
+      required: true

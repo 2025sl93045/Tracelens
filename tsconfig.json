@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/demo-services" },
+    { "path": "packages/ingestion" },
+    { "path": "packages/correlation" },
+    { "path": "packages/graph" },
+    { "path": "packages/api" }
+  ]
+}

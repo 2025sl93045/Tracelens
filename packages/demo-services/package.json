@@ -1,0 +1,22 @@
+{
+  "name": "@tracelens/demo-services",
+  "version": "0.1.0",
+  "description": "Demo microservices that emit telemetry and support fault injection (TraceLens telemetry source).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@tracelens/shared": "*",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21"
+  }
+}
