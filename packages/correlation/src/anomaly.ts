@@ -38,9 +38,9 @@ export function detectAnomalies(
       }
     }
 
-    window.push(event.value);
-    if (window.length > windowSize) window.shift();
-    series.set(key, window);
+    const next = [...window, event.value];
+    if (next.length > windowSize) next.shift();
+    series.set(key, next);
   }
 
   return results;

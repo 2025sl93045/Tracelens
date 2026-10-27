@@ -25,7 +25,7 @@ describe('detectAnomalies', () => {
       metricEvent('svc-a', 'latency', 99,  '2026-10-27T10:00:04.000Z'),
       metricEvent('svc-a', 'latency', 103, '2026-10-27T10:00:05.000Z'),
     ];
-    expect(detectAnomalies(events)).toEqual([]);
+    expect(detectAnomalies(events, 5)).toEqual([]);
   });
 
   it('detects a spike anomaly using the sliding window', () => {
