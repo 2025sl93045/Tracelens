@@ -71,4 +71,32 @@ describe('collectChanges', () => {
     );
     expect(changes).toHaveLength(2);
   });
+
+  it('throws RangeError for invalid windowStart', () => {
+    expect(() => collectChanges([], 'not-a-date', '2026-10-27T10:01:00.000Z')).toThrow(RangeError);
+  });
+
+  it('throws RangeError for invalid windowEnd', () => {
+    expect(() => collectChanges([], '2026-10-27T10:00:00.000Z', '')).toThrow(RangeError);
+  });
+
+  it('throws RangeError when windowStart is after windowEnd', () => {
+    expect(() =>
+      collectChanges([], '2026-10-27T10:01:00.000Z', '2026-10-27T10:00:00.000Z'),
+    ).toThrow(RangeError);
+  });
+
+  it('returns both deploy and config_change events when both are present', () => {
+    const changes = collectChanges(
+      [
+        event('deploy',        '2026-10-27T10:00:20.000Z', 'deploy-v4'),
+        event('config_change', '2026-10-27T10:00:40.000Z', 'flag-update'),
+      ],
+      windowStart,
+      windowEnd,
+    );
+    expect(changes).toHaveLength(2);
+    expect(changes[0].at).toBe('2026-10-27T10:00:20.000Z');
+    expect(changes[1].at).toBe('2026-10-27T10:00:40.000Z');
+  });
 });

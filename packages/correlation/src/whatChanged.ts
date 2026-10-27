@@ -8,6 +8,10 @@ export function collectChanges(
   const start = Date.parse(windowStart);
   const end   = Date.parse(windowEnd);
 
+  if (isNaN(start)) throw new RangeError(`invalid windowStart: "${windowStart}"`);
+  if (isNaN(end))   throw new RangeError(`invalid windowEnd: "${windowEnd}"`);
+  if (start > end)  throw new RangeError(`windowStart must not be after windowEnd`);
+
   return events
     .filter((e) => {
       if (e.type !== 'deploy' && e.type !== 'config_change') return false;
