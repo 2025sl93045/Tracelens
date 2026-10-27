@@ -39,11 +39,13 @@ export function buildIncident(
     deltaPct: a.deltaPct,
   }));
 
-  // Severity
-  const maxDeltaPct = Math.max(...group.anomalies.map((a) => Math.abs(a.deltaPct)));
+  // Severity — guard empty anomalies
+  const maxDeltaPct = group.anomalies.length > 0
+    ? Math.max(...group.anomalies.map((a) => Math.abs(a.deltaPct)))
+    : 0;
   const severity = deriveSeverity(maxDeltaPct);
 
-  // Candidates ranked by earliest onset per service
+  // Candidates: only services that actually have anomalies, ranked by earliest onset
   const onsetByService = new Map<string, number>();
   for (const a of group.anomalies) {
     const t = Date.parse(a.timestamp);
@@ -52,13 +54,16 @@ export function buildIncident(
   }
 
   const windowStart = Date.parse(group.windowStart);
-  const sortedServices = services.slice().sort(
+  // Filter to services with observed anomalies, then sort by earliest onset
+  const anomalousServices = services.filter((s) => onsetByService.has(s));
+  const sortedServices = anomalousServices.sort(
     (a, b) => (onsetByService.get(a) ?? Infinity) - (onsetByService.get(b) ?? Infinity),
   );
 
   const candidates = sortedServices.map((svc, idx) => {
     const onset = onsetByService.get(svc) ?? windowStart;
     const onsetOffsetMs = onset - windowStart;
+    // idx 0 = earliest-onset service after sort above
     const score = windowMs > 0 ? Math.max(0, 1 - onsetOffsetMs / windowMs) : 1;
     const confidence = confidenceFromScore(score);
 

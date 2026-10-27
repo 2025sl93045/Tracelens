@@ -84,6 +84,31 @@ describe('buildIncident', () => {
     expect(inc.candidates[0].why.some((w) => w.includes('First service'))).toBe(true);
   });
 
+  it('handles a single-anomaly group (windowMs = 0) without crashing', () => {
+    const g = group([anomaly('payment', '2026-10-27T10:00:00.000Z', 200)]);
+    // windowStart === windowEnd → windowMs = 0, score falls back to 1
+    const inc = buildIncident(g, ['payment'], []);
+    expect(inc.candidates).toHaveLength(1);
+    expect(inc.candidates[0].component).toBe('payment');
+    expect(inc.candidates[0].score).toBe(1);
+    expect(inc.candidates[0].confidence).toBe('high');
+  });
+
+  it('excludes services from candidates that have no anomaly in the group', () => {
+    const g = group([anomaly('payment', '2026-10-27T10:00:00.000Z', 200)]);
+    // 'ghost-svc' is in services but has no anomaly
+    const inc = buildIncident(g, ['payment', 'ghost-svc'], []);
+    expect(inc.candidates.map((c) => c.component)).not.toContain('ghost-svc');
+    expect(inc.candidates).toHaveLength(1);
+  });
+
+  it('returns empty candidates for empty services array', () => {
+    const g = group([anomaly('payment', '2026-10-27T10:00:00.000Z', 200)]);
+    const inc = buildIncident(g, [], []);
+    expect(inc.candidates).toEqual([]);
+    expect(inc.affectedServices).toEqual([]);
+  });
+
   // ── Injected-incident integration test ──────────────────────────────────
   it('known injected incident: payment-service is top candidate', () => {
     const T0  = '2026-10-27T14:00:00.000Z'; // payment — T+0
