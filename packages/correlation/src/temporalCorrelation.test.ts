@@ -59,4 +59,41 @@ describe('groupByTimeWindow', () => {
     expect(groups).toHaveLength(1);
     expect(groups[0].windowStart).toBe('2026-10-27T10:00:00.000Z');
   });
+
+  it('keeps a chain of events in one group when each gap is within maxGapMs', () => {
+    // Each consecutive gap is 50s (≤ 60s), but total span is 150s
+    const events = [
+      anomaly('svc-a', '2026-10-27T10:00:00.000Z'),
+      anomaly('svc-b', '2026-10-27T10:00:50.000Z'),
+      anomaly('svc-c', '2026-10-27T10:01:40.000Z'),
+      anomaly('svc-d', '2026-10-27T10:02:30.000Z'),
+    ];
+    const groups = groupByTimeWindow(events, 60_000);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].anomalies).toHaveLength(4);
+    expect(groups[0].windowStart).toBe('2026-10-27T10:00:00.000Z');
+    expect(groups[0].windowEnd).toBe('2026-10-27T10:02:30.000Z');
+  });
+
+  it('keeps events exactly maxGapMs apart in the same group (boundary inclusive)', () => {
+    const events = [
+      anomaly('svc-a', '2026-10-27T10:00:00.000Z'),
+      anomaly('svc-b', '2026-10-27T10:01:00.000Z'), // exactly 60s gap
+    ];
+    const groups = groupByTimeWindow(events, 60_000);
+    expect(groups).toHaveLength(1);
+  });
+
+  it('sets windowStart and windowEnd correctly on both groups when split', () => {
+    const events = [
+      anomaly('svc-a', '2026-10-27T10:00:00.000Z'),
+      anomaly('svc-b', '2026-10-27T10:01:01.000Z'), // 61s gap — splits
+    ];
+    const groups = groupByTimeWindow(events, 60_000);
+    expect(groups).toHaveLength(2);
+    expect(groups[0].windowStart).toBe('2026-10-27T10:00:00.000Z');
+    expect(groups[0].windowEnd).toBe('2026-10-27T10:00:00.000Z');
+    expect(groups[1].windowStart).toBe('2026-10-27T10:01:01.000Z');
+    expect(groups[1].windowEnd).toBe('2026-10-27T10:01:01.000Z');
+  });
 });

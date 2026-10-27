@@ -8,7 +8,7 @@ export interface AnomalyGroup {
 
 export function groupByTimeWindow(
   anomalies: AnomalyResult[],
-  windowMs = 60_000,
+  maxGapMs = 60_000,
 ): AnomalyGroup[] {
   if (anomalies.length === 0) return [];
 
@@ -24,10 +24,10 @@ export function groupByTimeWindow(
   };
 
   for (let i = 1; i < sorted.length; i++) {
-    const prev = Date.parse(sorted[i - 1].timestamp);
-    const curr = Date.parse(sorted[i].timestamp);
+    const prevMs = Date.parse(sorted[i - 1].timestamp);
+    const currMs = Date.parse(sorted[i].timestamp);
 
-    if (curr - prev > windowMs) {
+    if (currMs - prevMs > maxGapMs) {
       groups.push(current);
       current = {
         windowStart: sorted[i].timestamp,
